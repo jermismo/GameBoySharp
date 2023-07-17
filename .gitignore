@@ -1,8 +1,7 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/.vs/GameBoySharp/FileContentIndex
+﻿/.vs
 /GameBoySharp.Emu/obj
-/GameBoySharp.Emu.Tests
+/GameBoySharp.Emu/bin
+/GameBoySharp.Emu.Tests/obj
+/GameBoySharp.Emu.Tests/bin
 /GameBoySharpWinForms/obj
+/GameBoySharpWinForms/bin

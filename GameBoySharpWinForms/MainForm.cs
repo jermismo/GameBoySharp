@@ -6,7 +6,6 @@ namespace GameBoySharpWinForms
 {
     public partial class MainForm : Form
     {
-
         private Emulator emulator;
         private WaveOutEvent outputDevice;
         private ApuBufferReader? soundProvider;
