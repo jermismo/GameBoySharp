@@ -256,7 +256,7 @@ namespace GameBoySharp.Emu
         public APU(MMU mmu)
         {
             this.mmu = mmu;
-            mmu.DataWrite += Mmu_DataWrite;
+            mmu.IODataWrite += Mmu_DataWrite;
             Reset();
         }
 
@@ -463,8 +463,14 @@ namespace GameBoySharp.Emu
                     }
                     else
                     {
-                        BufferLeft.Push(Num.Lerp(smplLeftPrev, filter1.GetSample(), t.Value) / MaxVolume);
-                        BufferRight.Push(Num.Lerp(smplRightPrev, filter2.GetSample(), t.Value) / MaxVolume);
+                        var f1Smple = filter1.GetSample();
+                        var f2Smple = filter2.GetSample();
+
+                        var lerpLeft = Num.Lerp(smplLeftPrev, f1Smple, t.Value);
+                        var lefpRight = Num.Lerp(smplRightPrev, f2Smple, t.Value);
+
+                        BufferLeft.Push(lerpLeft / MaxVolume);
+                        BufferRight.Push(lefpRight / MaxVolume);
                         sampleSync -= NativeSampleRate;
                         t = null;
                     }
