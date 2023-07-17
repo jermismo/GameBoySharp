@@ -6,3 +6,8 @@
 /GameBoySharp.Emu/obj
 /GameBoySharp.Emu.Tests
 /GameBoySharpWinForms/obj
+/.vs/GameBoySharp/DesignTimeBuild
+/.vs/GameBoySharp/v17
+/.vs/ProjectEvaluation
+/GameBoySharpWinForms/bin/Debug/net7.0-windows
+/GameBoySharp.Emu/bin/Debug/net7.0
