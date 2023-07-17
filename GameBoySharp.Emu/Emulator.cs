@@ -46,6 +46,8 @@ namespace GameBoySharp.Emu
         /// </summary>
         public bool PowerSwitch { get; private set; }
 
+        public float FPS { get; private set; }
+
         public Emulator()
         {
             MMU = new MMU();
@@ -86,6 +88,7 @@ namespace GameBoySharp.Emu
         public void PowerOff()
         {
             PowerSwitch = false;
+            FPS = 0;
         }
 
         /// <summary>
@@ -104,10 +107,23 @@ namespace GameBoySharp.Emu
         /// Runs the emulator while the power is on.
         /// </summary>
         private void Execute()
-        {            
+        {
+            var runTime = new Stopwatch();
+            var frameCounter = 0;
+
+            runTime.Start();
+
             while (PowerSwitch)
             {
+                if (frameCounter > 30)
+                {
+                    FPS = (float)(frameCounter / runTime.Elapsed.TotalSeconds);
+                    runTime.Restart();
+                    frameCounter = 0;
+                }
+
                 CPU.RunCycles();
+                frameCounter++;
             }
         }
 

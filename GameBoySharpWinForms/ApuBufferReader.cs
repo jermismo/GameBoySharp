@@ -1,6 +1,5 @@
 ﻿using GameBoySharp.Emu;
 using NAudio.Wave;
-using System.Diagnostics;
 
 namespace GameBoySharpWinForms
 {
@@ -17,22 +16,27 @@ namespace GameBoySharpWinForms
         }
 
         public int Read(float[] buffer, int offset, int count)
-        {
+        {           
             int read = 0;
-            for(int i = 0; i < count; i += 2)
+
+            int leftPops = 0;
+            int rightPops = 0;
+
+            for(int i = offset; i < count; i += 2)
             {
-                if (apu.BufferLeft.Length == 0)
-                {
-                    buffer[i] = 0;
-                    buffer[i + 1] = 0;
-                }
-                else
+                if (apu.BufferLeft.Length > 0)
                 {
                     buffer[i] = apu.BufferLeft.Pop();
-                    buffer[i + 1] = apu.BufferRight.Pop();
+                    leftPops++;
                 }
-                read++;
+                if (apu.BufferRight.Length > 0)
+                {   
+                    buffer[i + 1] = apu.BufferRight.Pop();
+                    rightPops++;
+                }
+                read += 2;
             }
+
             return read;
         }
     }
