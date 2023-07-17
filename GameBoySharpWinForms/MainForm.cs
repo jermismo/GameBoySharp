@@ -7,7 +7,6 @@ namespace GameBoySharpWinForms
 {
     public partial class MainForm : Form
     {
-
         private Emulator emulator;
         private WaveOutEvent outputDevice;
         private ApuBufferReader? soundProvider;
@@ -42,7 +41,7 @@ namespace GameBoySharpWinForms
             {
                 soundProvider = new ApuBufferReader(emulator.APU);
                 outputDevice.Init(soundProvider);
-                outputDevice.Play();
+                outputDevice.Stop();
             }
         }
 
@@ -125,10 +124,14 @@ namespace GameBoySharpWinForms
 
             pictureBox1.Invalidate();
             isDrawing = false;
+
+            this.Text = $"GameBoy Sharp - {emulator.FPS} FPS";
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            outputDevice.Stop();
+
             var dlg = new OpenFileDialog();
             dlg.Filter = "Game Boy Files | *.gb";
             dlg.AddToRecent = true;
@@ -139,6 +142,7 @@ namespace GameBoySharpWinForms
                 {
                     emulator.PowerOff();
                     emulator.PowerOn(dlg.FileName);
+                    outputDevice.Play();
                 }
             }
         }

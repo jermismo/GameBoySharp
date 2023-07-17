@@ -7,7 +7,11 @@
 
         public int Length { get; private set; }
 
-        public float Last { get; private set; }
+        public float Last
+        {
+            get => this.Length == 0 ? 0 : data[this.Length - 1];
+            set => this.Push(value);
+        }
 
         public float this[int i]
         {
@@ -22,7 +26,8 @@
 
         public void Push(float value)
         {
-            data[(start + Length++) % data.Length] = value;
+            data[(start + Length) % data.Length] = value;
+            Length++;
         }
 
         public float Pop()

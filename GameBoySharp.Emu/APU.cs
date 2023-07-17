@@ -4,7 +4,6 @@ using GameBoySharp.Emu.Core;
 using GameBoySharp.Emu.Sound;
 using GameBoySharp.Emu.Utils;
 using System.Diagnostics;
-using System.Formats.Asn1;
 
 namespace GameBoySharp.Emu
 {
@@ -28,8 +27,8 @@ namespace GameBoySharp.Emu
         private SquareWaveGenerator channel2;
         private WaveTableGenerator channel3;
         private NoiseGenerator channel4;
-        private LowPassFilter filter1;
-        private LowPassFilter filter2;
+        private LowPassFilter filterRight;
+        private LowPassFilter filterLeft;
 
         int currentCycle = 0;
         int subCycles = SequencerRate;
@@ -38,7 +37,7 @@ namespace GameBoySharp.Emu
         float sampleStepSize = SampleRate * NativeSampleRatio;
         float[] samples = new float[4];
 
-        float sampleLeft, sampleRight, smplLeftPrev, smplRightPrev;
+        float sampleRight, sampleLeft, smplRightPrev, smplLeftPrev;
         float? t;
 
         int cycleSkip = NativeSampleRatio;
@@ -48,8 +47,8 @@ namespace GameBoySharp.Emu
         public float ch3vol = 1;
         public float ch4vol = 1;
 
-        public SoundBuffer BufferLeft { get; set; }
         public SoundBuffer BufferRight { get; set; }
+        public SoundBuffer BufferLeft { get; set; }
 
         #region Channel 1 (Square 1) Registers
 
@@ -237,8 +236,8 @@ namespace GameBoySharp.Emu
         /// </remarks>
         public byte NR52 { get => mmu.ReadByte(0xFF26); set => mmu.WriteByte(0xFF26, value); }
 
-        public int VolumeLeft => (NR50 & 0x7) + 1;
-        public int VolumeRight => ((NR50 >> 4) & 0x7) + 1;
+        public int VolumeRight => (NR50 & 0x7) + 1;
+        public int VolumeLeft => ((NR50 >> 4) & 0x7) + 1;
 
         public bool Channel1_Left_On => BitOps.IsBitSet(0, NR51);
         public bool Channel2_Left_On => BitOps.IsBitSet(1, NR51);
@@ -256,7 +255,7 @@ namespace GameBoySharp.Emu
         public APU(MMU mmu)
         {
             this.mmu = mmu;
-            mmu.IODataWrite += Mmu_DataWrite;
+            mmu.IODataWrite += Mmu_IODataWrite;
             Reset();
         }
 
@@ -270,11 +269,11 @@ namespace GameBoySharp.Emu
             channel3 = new WaveTableGenerator();
             channel4 = new NoiseGenerator();
 
-            filter1 = new LowPassFilter(NativeSampleRate / NativeSampleRatio, SampleRate, FilterOrder);
-            filter2 = new LowPassFilter(NativeSampleRate / NativeSampleRatio, SampleRate, FilterOrder);
+            filterRight = new LowPassFilter(NativeSampleRate / NativeSampleRatio, SampleRate, FilterOrder);
+            filterLeft = new LowPassFilter(NativeSampleRate / NativeSampleRatio, SampleRate, FilterOrder);
         }
 
-        private void Mmu_DataWrite(object? sender, MmuDataArgs e)
+        private void Mmu_IODataWrite(object? sender, MmuDataArgs e)
         {
             // APU IO Addresses
             if (e.Address >= 0xFF10 && e.Address <= 0xFF24)
@@ -442,32 +441,32 @@ namespace GameBoySharp.Emu
 
                 if (SoundEnabled)
                 {
-                    GetSoundOut1();
-                    GetSoundOut2();
+                    GetSoundOutRight();
+                    GetSoundOutLeft();
                 }
                 else
                 {
-                    sampleLeft = sampleRight = 0;
+                    sampleRight = sampleLeft = 0;
                 }
 
-                filter1.AddSample(sampleLeft);
-                filter2.AddSample(sampleRight);
+                filterRight.AddSample(sampleRight);
+                filterLeft.AddSample(sampleLeft);
 
                 if (NativeSampleRate - sampleSync < sampleStepSize)
                 {
                     if (t == null)
                     {
-                        smplLeftPrev = filter1.GetSample();
-                        smplRightPrev = filter2.GetSample();
+                        smplRightPrev = filterRight.GetSample();
+                        smplLeftPrev = filterLeft.GetSample();
                         t = (NativeSampleRate - sampleSync) / sampleStepSize;
                     }
                     else
                     {
-                        var f1Smple = filter1.GetSample();
-                        var f2Smple = filter2.GetSample();
+                        var fRSmple = filterRight.GetSample();
+                        var fLSmple = filterLeft.GetSample();
 
-                        var lerpLeft = Num.Lerp(smplLeftPrev, f1Smple, t.Value);
-                        var lefpRight = Num.Lerp(smplRightPrev, f2Smple, t.Value);
+                        var lerpLeft = Num.Lerp(smplRightPrev, fRSmple, t.Value);
+                        var lefpRight = Num.Lerp(smplLeftPrev, fLSmple, t.Value);
 
                         BufferLeft.Push(lerpLeft / MaxVolume);
                         BufferRight.Push(lefpRight / MaxVolume);
@@ -478,52 +477,56 @@ namespace GameBoySharp.Emu
             }
         }
 
-        private void GetSoundOut1()
-        {
-            sampleLeft = 0;
-
-            if (Channel1_Left_On)
-            {
-                sampleLeft += samples[0] + channel1.Play(1) * ch1vol;
-            }
-            if (Channel2_Left_On)
-            {
-                sampleLeft += samples[1] + channel2.Play(1) * ch2vol;
-            }
-            if (Channel3_Left_On)
-            {
-                sampleLeft += samples[2] + channel3.Play(1) * ch3vol;
-            }
-            if (Channel4_Left_On)
-            {
-                sampleLeft += samples[3] + channel1.Play(1) * ch4vol;
-            }
-
-            sampleLeft *= VolumeLeft;
-        }
-
-        private void GetSoundOut2()
+        private void GetSoundOutRight()
         {
             sampleRight = 0;
 
             if (Channel1_Right_On)
             {
-                sampleRight += Channel1_Left_On ? samples[0] : channel1.Play(1) * ch1vol;
+                samples[0] = channel1.Play(1) * ch1vol;
+                sampleRight += samples[0];
             }
             if (Channel2_Right_On)
             {
-                sampleRight += Channel1_Left_On ? samples[1] : channel2.Play(1) * ch2vol;
+                samples[1] = channel2.Play(1) * ch2vol;
+                sampleRight += samples[1];
             }
             if (Channel3_Right_On)
             {
-                sampleRight += Channel1_Left_On ? samples[2] : channel3.Play(1) * ch3vol;
+                samples[2] = channel3.Play(1) * ch3vol;
+                sampleRight += samples[2];
             }
             if (Channel4_Right_On)
             {
-                sampleRight += Channel1_Left_On ? samples[3] : channel4.Play(1) * ch4vol;
+                samples[3] = channel4.Play(1) * ch4vol;
+                sampleRight += samples[3];
             }
 
             sampleRight *= VolumeRight;
+        }
+
+        private void GetSoundOutLeft()
+        {
+            sampleLeft = 0;
+
+            if (Channel1_Left_On)
+            {
+                sampleLeft += Channel1_Right_On ? samples[0] : channel1.Play(1) * ch1vol;
+            }
+            if (Channel2_Left_On)
+            {
+                sampleLeft += Channel1_Right_On ? samples[1] : channel2.Play(1) * ch2vol;
+            }
+            if (Channel3_Left_On)
+            {
+                sampleLeft += Channel1_Right_On ? samples[2] : channel3.Play(1) * ch3vol;
+            }
+            if (Channel4_Left_On)
+            {
+                sampleLeft += Channel1_Right_On ? samples[3] : channel4.Play(1) * ch4vol;
+            }
+
+            sampleLeft *= VolumeLeft;
         }
 
     }
