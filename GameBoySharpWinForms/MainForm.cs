@@ -1,4 +1,5 @@
 using GameBoySharp.Emu;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using System.ComponentModel;
 
@@ -15,10 +16,19 @@ namespace GameBoySharpWinForms
         public MainForm()
         {
             emulator = new Emulator();
-            emulator.AudioEnabled = true;
+
+            var audioDeviceEnum = new MMDeviceEnumerator();
+            var device = audioDeviceEnum.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+            
             outputDevice = new WaveOutEvent();
 
             InitializeComponent();
+
+            foreach(var palette in Emulator.Palettes)
+            {
+                var tsi = colorsToolStripMenuItem.DropDownItems.Add(palette.Name);
+                tsi.Click += colorsToolStripMenuItem_Click;
+            }
 
             pictureBox1.Image = bitmap;
 
@@ -31,7 +41,7 @@ namespace GameBoySharpWinForms
             {
                 soundProvider = new ApuBufferReader(emulator.APU);
                 outputDevice.Init(soundProvider);
-                outputDevice.Play();
+                outputDevice.Stop();
             }
         }
 
@@ -114,20 +124,25 @@ namespace GameBoySharpWinForms
 
             pictureBox1.Invalidate();
             isDrawing = false;
+
+            this.Text = $"GameBoy Sharp - {emulator.FPS} FPS";
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            outputDevice.Stop();
+
             var dlg = new OpenFileDialog();
             dlg.Filter = "Game Boy Files | *.gb";
             dlg.AddToRecent = true;
-            
+
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 if (File.Exists(dlg.FileName))
                 {
                     emulator.PowerOff();
                     emulator.PowerOn(dlg.FileName);
+                    outputDevice.Play();
                 }
             }
         }
@@ -135,6 +150,14 @@ namespace GameBoySharpWinForms
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+    
+        private void colorsToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            if (sender is ToolStripItem tsi)
+            {
+                emulator.ChangePallete(tsi.Text);
+            }
         }
     }
 }

@@ -33,9 +33,15 @@ namespace GameBoySharp.Emu
         /// </summary>
         private GameRom? gameRom;
 
-        public Action<char> DebugCallback { get; set; }
+        /// <summary>
+        /// Called when data is written to the serial port by test ROMs.
+        /// </summary>
+        public Action<char>? DebugCallback { get; set; }
 
-        public event EventHandler<MmuDataArgs> DataWrite;
+        /// <summary>
+        /// Fires when data is written to the IO memory.
+        /// </summary>
+        public event EventHandler<MmuDataArgs> IODataWrite;
                 
         #region Memory
 
@@ -357,12 +363,7 @@ namespace GameBoySharp.Emu
                     }
 
                     IO[address & 0x7F] = value;
-                    
-                    // APU writes
-                    //if (address >= 0xFF10 && address <= 0xFF3F)
-                    //{
-                    //    DataWrite?.Invoke(this, new MmuDataArgs(address, value));
-                    //}
+                    IODataWrite?.Invoke(this, new MmuDataArgs(address, value));
                     break;
                 case ushort _ when address <= HRamEnd:    // FF80-FFFE High RAM(HRAM)
                     HRAM[address & 0x7F] = value;

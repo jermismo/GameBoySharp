@@ -138,8 +138,7 @@ namespace GameBoySharp.Emu
                 emu.Timer.Update(cpuCycles, mmu);
                 emu.PPU.Update(cpuCycles, mmu);
                 emu.Joypad.Update(mmu);
-
-                if (emu.AudioEnabled) emu.APU?.Update(cpuCycles);
+                emu.APU.Update(cpuCycles);
 
                 HandleInterrupts();
             }

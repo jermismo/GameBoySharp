@@ -12,16 +12,18 @@
             buffer = new SoundBuffer(filterOrder + 1);
             coefficients = new float[filterOrder + 1];
 
-            cutoff = (outputSampleRate / 2) / inputSampleRate;
+            cutoff = (outputSampleRate / 2f) / inputSampleRate;
 
             var factor = cutoff * 2;
             var halfOrder = filterOrder >> 1;
+
             for(int i = 0; i < coefficients.Length; i++)
             {
                 var c = factor * SinC(factor * (i - halfOrder));
+
                 // blackman window
-                c *= 0.42 - 0.5 * Math.Cos(2 * Math.PI * i / filterOrder) + 0.08 * Math.Cos(4 * Math.PI * i / filterOrder);
-                coefficients[i] = (float)c;
+                c *= (float)(0.42 - 0.5 * Math.Cos(2.0 * Math.PI * i / filterOrder) + 0.08 * Math.Cos(4.0 * Math.PI * i / filterOrder));
+                coefficients[i] = c;
             }
         }
 
@@ -33,7 +35,8 @@
         public float GetSample()
         {
             convolved = 0;
-            for (int i = 0; i < Math.Min(coefficients.Length, buffer.Length); i++)
+            var len = Math.Min(coefficients.Length, buffer.Length);
+            for (int i = 0; i < len; i++)
             {
                 convolved += buffer[buffer.Length - i - 1] * coefficients[i];
             }
@@ -41,7 +44,7 @@
             return convolved;
         }
 
-        public static double SinC(float x)
+        public static float SinC(float x)
         {
             if (x == 0)
             {
@@ -50,7 +53,7 @@
             else
             {
                 var xpi = Math.PI * x;
-                return (Math.Sin(xpi) / xpi);
+                return (float)(Math.Sin(xpi) / xpi);
             }
         }
     }

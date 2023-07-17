@@ -9,7 +9,7 @@ Most of this emulator is based on [Project DMG](https://github.com/BluestormDNA/
 This emulator has been manually tested with a handful of popular games and appeared to be compatible. The emulators it is based on have ~95% compatiblity.
 
 # Known Issues
-- Sound is not currently working, but most of what is needed should be in place.
+- Sound is playing, but is not correct.
 - The memory and interrupt timings are not accurrate, but are good enough to run most games
 
 # Controls
@@ -53,6 +53,9 @@ Compiled versions of the Blargg and Mooneye test ROMs are included in the Tests 
 |01-read_timing|Failed|
 |02-write_timing|Failed|
 |03-modify_timing|Failed|
+
+**Sound Tests**
+All fail
 
 **Other Tests**
 
