@@ -1,4 +1,5 @@
 using GameBoySharp.Emu;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using System.ComponentModel;
 
@@ -16,10 +17,19 @@ namespace GameBoySharpWinForms
         public MainForm()
         {
             emulator = new Emulator();
-            emulator.AudioEnabled = true;
+
+            var audioDeviceEnum = new MMDeviceEnumerator();
+            var device = audioDeviceEnum.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+            
             outputDevice = new WaveOutEvent();
 
             InitializeComponent();
+
+            foreach(var palette in Emulator.Palettes)
+            {
+                var tsi = colorsToolStripMenuItem.DropDownItems.Add(palette.Name);
+                tsi.Click += colorsToolStripMenuItem_Click;
+            }
 
             pictureBox1.Image = bitmap;
 
@@ -122,7 +132,7 @@ namespace GameBoySharpWinForms
             var dlg = new OpenFileDialog();
             dlg.Filter = "Game Boy Files | *.gb";
             dlg.AddToRecent = true;
-            
+
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 if (File.Exists(dlg.FileName))
@@ -136,6 +146,14 @@ namespace GameBoySharpWinForms
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
+        }
+    
+        private void colorsToolStripMenuItem_Click(object? sender, EventArgs e)
+        {
+            if (sender is ToolStripItem tsi)
+            {
+                emulator.ChangePallete(tsi.Text);
+            }
         }
     }
 }

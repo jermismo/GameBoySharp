@@ -30,7 +30,6 @@ namespace GameBoySharpWinForms
                 {
                     buffer[i] = apu.BufferLeft.Pop();
                     buffer[i + 1] = apu.BufferRight.Pop();
-                    if (buffer[i] > 0) Debugger.Break();
                 }
                 read++;
             }

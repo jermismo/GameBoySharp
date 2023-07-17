@@ -29,7 +29,7 @@ namespace GameBoySharp.Emu
         /// <summary>
         /// The Audio Processing Unit
         /// </summary>
-        public APU? APU { get; private set; }
+        public APU APU { get; private set; }
 
         /// <summary>
         /// The system timer
@@ -46,12 +46,11 @@ namespace GameBoySharp.Emu
         /// </summary>
         public bool PowerSwitch { get; private set; }
 
-        public bool AudioEnabled { get; set; }
-
         public Emulator()
         {
             MMU = new MMU();
             PPU = new PPU();
+            APU = new APU(MMU);
 
             Timer = new Timer();
             Joypad = new Joypad();
@@ -59,6 +58,10 @@ namespace GameBoySharp.Emu
             CPU = new CPU(this);
         }
 
+        /// <summary>
+        /// Start the Emulator with a new ROM file.
+        /// </summary>
+        /// <param name="cartridgePath">The path to the Game Boy ROM.</param>
         public async void PowerOn(string cartridgePath)
         {
             if (PowerSwitch)
@@ -69,11 +72,7 @@ namespace GameBoySharp.Emu
 
             CPU.Reset();
             PPU.Reset();
-            if (AudioEnabled)
-            {
-                if (APU is null) APU = new APU(MMU);
-                else APU.Reset();
-            }
+            APU.Reset();
             MMU.LoadGamePak(cartridgePath);
 
             PowerSwitch = true;
@@ -81,11 +80,29 @@ namespace GameBoySharp.Emu
             runTask = Task.Factory.StartNew(Execute, TaskCreationOptions.LongRunning);
         }
 
+        /// <summary>
+        /// Stop the emulator.
+        /// </summary>
         public void PowerOff()
         {
             PowerSwitch = false;
         }
 
+        /// <summary>
+        /// Change the color pallete used to draw the screen.
+        /// </summary>
+        /// <param name="name">A name from <see cref="Emulator.Palettes"/></param>
+        public void ChangePallete(string name)
+        {
+            if (Palettes.Any(p => p.Name == name))
+            {
+                PPU.Palette = Palettes.First(p => p.Name == name);
+            }
+        }
+
+        /// <summary>
+        /// Runs the emulator while the power is on.
+        /// </summary>
         private void Execute()
         {            
             while (PowerSwitch)

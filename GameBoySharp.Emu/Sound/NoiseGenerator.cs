@@ -1,9 +1,4 @@
 ﻿using GameBoySharp.Emu.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GameBoySharp.Emu.Sound
 {
@@ -56,7 +51,7 @@ namespace GameBoySharp.Emu.Sound
             get => _frequency;
             set
             {
-                CycleLengthNumerator = (int)(APU.NativeSampleRate / 64 * (value == 0 ? 0.5 : value)) << (ShiftClockFrequency + 1);
+                CycleLengthNumerator = (int)(APU.NativeSampleRate / 64.0 * (value == 0 ? 0.5 : value)) << (ShiftClockFrequency + 1);
                 CycleLengthDenominator = 0x80000 / 64;
                 _frequency = value;
             }
