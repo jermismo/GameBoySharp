@@ -1,4 +1,6 @@
-﻿namespace GameBoySharp.Emu.Utils
+﻿using System.Diagnostics;
+
+namespace GameBoySharp.Emu.Utils
 {
     /// <summary>
     /// Holds constant values
@@ -14,6 +16,11 @@
         /// LCD screen refresh rate
         /// </summary>
         public const float REFRESH_RATE = 59.7275f;
+
+        /// <summary>
+        /// The number of ticks per screen refresh
+        /// </summary>
+        public static readonly long TICKS_PER_REFRESH = (long)(Stopwatch.Frequency / REFRESH_RATE);
         
         /// <summary>
         /// The number of CPU cycles per screen update

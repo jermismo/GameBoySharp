@@ -1,4 +1,6 @@
-﻿namespace GameBoySharp.Emu.Sound
+﻿using System.Numerics;
+
+namespace GameBoySharp.Emu.Sound
 {
     public class LowPassFilter
     {
@@ -34,11 +36,33 @@
 
         public float GetSample()
         {
-            convolved = 0;
-            var len = Math.Min(coefficients.Length, buffer.Length);
-            for (int i = 0; i < len; i++)
+            //convolved = 0;
+            //var len = Math.Min(coefficients.Length, buffer.Length);
+            //for (int i = 0; i < len; i++)
+            //{
+            //    convolved += buffer[buffer.Length - i - 1] * coefficients[i];
+            //}
+
+            int len = Math.Min(coefficients.Length, buffer.Length);
+            int simdLength = Vector<float>.Count;
+
+            Vector<float> total = Vector<float>.Zero;
+            int i;
+            var bfrSpan = buffer.ToSpan();
+
+            for (i = 0; i <= len - simdLength; i += simdLength)
             {
-                convolved += buffer[buffer.Length - i - 1] * coefficients[i];
+                var coeffVector = new Vector<float>(coefficients, i);
+                var bufferVector = new Vector<float>(bfrSpan.Slice(i));
+
+                total += Vector.Multiply(coeffVector, bufferVector);
+            }
+            float convolved = Vector.Dot(total, Vector<float>.One);
+
+            // if the size is not a multiple of Vector<float>.Count, then handle the remainers
+            for (; i < len; i++)
+            {
+                convolved += bfrSpan[i] * coefficients[i];
             }
 
             return convolved;

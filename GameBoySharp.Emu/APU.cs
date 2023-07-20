@@ -13,11 +13,15 @@ namespace GameBoySharp.Emu
     [DebuggerDisplay("APU on:{SoundEnabled} Volume:{VolumeLeft}/{VolumeRight}")]
     public class APU
     {
+        /// <summary>
+        /// The Audio output rate in Hz.
+        /// </summary>
         public const int SampleRate = 44100;
         public const int NativeSampleRate = 4296600; // 465 * 154 * 60
         public const int NativeSampleRatio = 4;
+
         const int SequencerRate = 8230; // NativeSampleRate / 8 / 64
-        const int BufferLength = 0x8000;
+        const int BufferLength = 0xFFFF; //0x8000;
         const int MaxVolume = 16;
         const int FilterOrder = 63;
 
