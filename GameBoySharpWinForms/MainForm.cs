@@ -19,16 +19,19 @@ namespace GameBoySharpWinForms
 
             var audioDeviceEnum = new MMDeviceEnumerator();
             var device = audioDeviceEnum.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
-            
+
             outputDevice = new WaveOutEvent();
 
             InitializeComponent();
 
-            foreach(var palette in Emulator.Palettes)
+            foreach (var palette in Emulator.Palettes)
             {
                 var tsi = colorsToolStripMenuItem.DropDownItems.Add(palette.Name);
                 tsi.Click += colorsToolStripMenuItem_Click;
             }
+
+            soundToolstripMenuItem.Checked = emulator.SoundEnabled;
+            frameRateLockToolStripMenuItem.Checked = emulator.LockFrameRate;
 
             pictureBox1.Image = bitmap;
 
@@ -104,6 +107,10 @@ namespace GameBoySharpWinForms
         private void PPU_FrameReady(object? sender, EventArgs e)
         {
             pictureBox1.BeginInvoke(new Action(DrawPicture));
+            if (outputDevice.PlaybackState != PlaybackState.Playing)
+            {
+                outputDevice.Play();
+            }
         }
 
         private void DrawPicture()
@@ -151,13 +158,25 @@ namespace GameBoySharpWinForms
         {
             Close();
         }
-    
+
         private void colorsToolStripMenuItem_Click(object? sender, EventArgs e)
         {
             if (sender is ToolStripItem tsi)
             {
                 emulator.ChangePallete(tsi.Text);
             }
+        }
+
+        private void sound_Click(object sender, EventArgs e)
+        {
+            emulator.SoundEnabled = !emulator.SoundEnabled;
+            soundToolstripMenuItem.Checked = emulator.SoundEnabled;
+        }
+
+        private void frameRateLockToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            emulator.LockFrameRate = !emulator.LockFrameRate;
+            frameRateLockToolStripMenuItem.Checked = emulator.LockFrameRate;
         }
     }
 }

@@ -46,6 +46,19 @@ namespace GameBoySharp.Emu
         /// </summary>
         public bool PowerSwitch { get; private set; }
 
+        /// <summary>
+        /// Enable Sound Playback
+        /// </summary>
+        public bool SoundEnabled { get; set; }
+
+        /// <summary>
+        /// Locks the frame rate to the native rate (59.72 fps)
+        /// </summary>
+        public bool LockFrameRate { get; set; } = true;
+
+        /// <summary>
+        /// The current Frames Per Second
+        /// </summary>
         public float FPS { get; private set; }
 
         public Emulator()
@@ -108,17 +121,17 @@ namespace GameBoySharp.Emu
         /// </summary>
         private void Execute()
         {
-            var runTime = new Stopwatch();
+            var fpsWatch = new Stopwatch();
             var frameCounter = 0;
-
-            runTime.Start();
+            
+            fpsWatch.Start();
 
             while (PowerSwitch)
             {
                 if (frameCounter > 30)
                 {
-                    FPS = (float)(frameCounter / runTime.Elapsed.TotalSeconds);
-                    runTime.Restart();
+                    FPS = (float)(frameCounter / fpsWatch.Elapsed.TotalSeconds);
+                    fpsWatch.Restart();
                     frameCounter = 0;
                 }
 

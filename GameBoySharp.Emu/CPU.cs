@@ -12,9 +12,11 @@ namespace GameBoySharp.Emu
     [DebuggerDisplay("{OpCode,nq} AF:{AF_Str,nq} BC:{BC_Str,nq} DE:{DE_Str,nq} HL:{HL_Str,nq} SP:{SP_Str,nq} PC:{PC_Str,nq}")]
     public class CPU
     {
+        long ticksPerSample = Stopwatch.Frequency / APU.SampleRate;
+
         private Emulator emu;
         private MMU mmu;
-
+        
         #region Registers
 
         private ushort PC;
@@ -72,10 +74,12 @@ namespace GameBoySharp.Emu
         private bool IMEEnabler;
         private bool HALTED;
         private bool HALT_BUG;
+
         private int cycles;
-        private int cyclesThisUpdate = 0;
 
         public bool Halted => HALTED;
+
+        private Stopwatch timerWatch = new Stopwatch();
 
         #region Debug Info
 
@@ -129,7 +133,10 @@ namespace GameBoySharp.Emu
         public void RunCycles()
         {
             int cpuCycles;
-            
+            int cyclesThisUpdate = 0;
+
+            if (emu.LockFrameRate) timerWatch.Restart();
+
             while (cyclesThisUpdate < Constants.CYCLES_PER_UPDATE)
             {
                 cpuCycles = RunNextOperation();
@@ -138,12 +145,18 @@ namespace GameBoySharp.Emu
                 emu.Timer.Update(cpuCycles, mmu);
                 emu.PPU.Update(cpuCycles, mmu);
                 emu.Joypad.Update(mmu);
-                emu.APU.Update(cpuCycles);
+
+                if (emu.SoundEnabled) emu.APU.Update(cpuCycles);
 
                 HandleInterrupts();
             }
-
-            cyclesThisUpdate -= Constants.CYCLES_PER_UPDATE;
+            if (emu.LockFrameRate)
+            {
+                while (timerWatch.ElapsedTicks < Constants.TICKS_PER_REFRESH)
+                {
+                    // do nothing
+                }
+            }
         }
 
         /// <summary>

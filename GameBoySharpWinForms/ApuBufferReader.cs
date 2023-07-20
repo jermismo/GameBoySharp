@@ -19,21 +19,14 @@ namespace GameBoySharpWinForms
         {           
             int read = 0;
 
-            int leftPops = 0;
-            int rightPops = 0;
-
             for(int i = offset; i < count; i += 2)
             {
-                if (apu.BufferLeft.Length > 0)
+                if (apu.BufferRight.Length > 0)
                 {
                     buffer[i] = apu.BufferLeft.Pop();
-                    leftPops++;
-                }
-                if (apu.BufferRight.Length > 0)
-                {   
                     buffer[i + 1] = apu.BufferRight.Pop();
-                    rightPops++;
                 }
+                else break;
                 read += 2;
             }
 

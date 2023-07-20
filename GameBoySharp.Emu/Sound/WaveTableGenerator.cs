@@ -70,10 +70,15 @@ namespace GameBoySharp.Emu.Sound
 
             if (Enabled)
             {
-                var val1 = WaveData[(int)Math.Floor(cyclePos / sampleLength) & 0x1f];
-                var val2 = WaveData[(int)Math.Ceiling(cyclePos / sampleLength) & 0x1f];
-                var t = (cyclePos / sampleLength) % 1;
-                val = (int)Math.Round(Num.Lerp(val1, val2, t));
+                var ratio = cyclePos / sampleLength;
+                var floor = (int)ratio;
+                var ceilg = floor + 1;
+                var t = ratio - floor;
+
+                var val1 = WaveData[floor & 0x1f];
+                var val2 = WaveData[ceilg & 0x1f];
+
+                val = (int)Math.Round(val1 + t * (val2 - val1));
                 if (OutputLevel > 1) val >>= (OutputLevel - 1);
             }
 

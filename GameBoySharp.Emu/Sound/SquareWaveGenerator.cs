@@ -209,9 +209,9 @@ namespace GameBoySharp.Emu.Sound
             var val = 0;
             if (Enabled)
             {
-                CyclePos += (CycleLengthDenominator * APU.NativeSampleRatio) * rate;
+                CyclePos += CycleLengthDenominator * APU.NativeSampleRatio * rate;
                 if (CyclePos >= CycleLengthNumerator) CyclePos -= CycleLengthNumerator;
-                val = (cachedDuty[(int)(CyclePos / DutyLength) & 0x7]) ? Amplitude : -Amplitude;
+                val = cachedDuty[(int)(CyclePos / DutyLength) & 0x7] ? Amplitude : -Amplitude;
             }
 
             return val;

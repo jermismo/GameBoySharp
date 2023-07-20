@@ -31,10 +31,13 @@
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
-            exitToolStripMenuItem = new ToolStripMenuItem();
-            pictureBox1 = new PictureBox();
             toolStripSeparator1 = new ToolStripSeparator();
+            exitToolStripMenuItem = new ToolStripMenuItem();
             colorsToolStripMenuItem = new ToolStripMenuItem();
+            settingsToolStripMenuItem = new ToolStripMenuItem();
+            soundToolstripMenuItem = new ToolStripMenuItem();
+            frameRateLockToolStripMenuItem = new ToolStripMenuItem();
+            pictureBox1 = new PictureBox();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
@@ -42,7 +45,7 @@
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, colorsToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, colorsToolStripMenuItem, settingsToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(800, 28);
@@ -63,12 +66,44 @@
             openToolStripMenuItem.Text = "&Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
             // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(125, 6);
+            // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             exitToolStripMenuItem.Size = new Size(128, 26);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // colorsToolStripMenuItem
+            // 
+            colorsToolStripMenuItem.Name = "colorsToolStripMenuItem";
+            colorsToolStripMenuItem.Size = new Size(65, 24);
+            colorsToolStripMenuItem.Text = "Colors";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            settingsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { soundToolstripMenuItem, frameRateLockToolStripMenuItem });
+            settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            settingsToolStripMenuItem.Size = new Size(76, 24);
+            settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // soundToolstripMenuItem
+            // 
+            soundToolstripMenuItem.Name = "soundToolstripMenuItem";
+            soundToolstripMenuItem.Size = new Size(224, 26);
+            soundToolstripMenuItem.Text = "Sound";
+            soundToolstripMenuItem.Click += sound_Click;
+            // 
+            // frameRateLockToolStripMenuItem
+            // 
+            frameRateLockToolStripMenuItem.Name = "frameRateLockToolStripMenuItem";
+            frameRateLockToolStripMenuItem.Size = new Size(224, 26);
+            frameRateLockToolStripMenuItem.Text = "Frame Rate Lock";
+            frameRateLockToolStripMenuItem.Click += frameRateLockToolStripMenuItem_Click;
             // 
             // pictureBox1
             // 
@@ -79,17 +114,6 @@
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 1;
             pictureBox1.TabStop = false;
-            // 
-            // toolStripSeparator1
-            // 
-            toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(125, 6);
-            // 
-            // colorsToolStripMenuItem
-            // 
-            colorsToolStripMenuItem.Name = "colorsToolStripMenuItem";
-            colorsToolStripMenuItem.Size = new Size(65, 24);
-            colorsToolStripMenuItem.Text = "Colors";
             // 
             // MainForm
             // 
@@ -117,5 +141,8 @@
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem colorsToolStripMenuItem;
+        private ToolStripMenuItem settingsToolStripMenuItem;
+        private ToolStripMenuItem soundToolstripMenuItem;
+        private ToolStripMenuItem frameRateLockToolStripMenuItem;
     }
 }
