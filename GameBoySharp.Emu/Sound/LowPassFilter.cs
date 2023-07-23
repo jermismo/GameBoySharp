@@ -53,7 +53,7 @@ namespace GameBoySharp.Emu.Sound
             for (i = 0; i <= len - simdLength; i += simdLength)
             {
                 var coeffVector = new Vector<float>(coefficients, i);
-                var bufferVector = new Vector<float>(bfrSpan.Slice(i));
+                var bufferVector = new Vector<float>(bfrSpan.Slice(i, simdLength));
 
                 total += Vector.Multiply(coeffVector, bufferVector);
             }
